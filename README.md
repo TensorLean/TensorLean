@@ -15,7 +15,7 @@ We will soon release our paper and open-source TensorLean, including its PTX sem
 
 ## Correctness Bugs Found by TensorLean
 
-With TensorLean, we verified 149 open-source kernel instances, including 102 from FlashAttention, proving 83 of them correct and finding bugs in the other 66. Here, we share 39 correctness bugs of various types that TensorLean's verification found in production kernel libraries. All have been reported to developers.
+With TensorLean, we verified 149 open-source kernel instances, including 102 from FlashAttention, proving 83 of them correct and finding bugs in the other 66. Here, we share 40 correctness bugs of various types that TensorLean's verification found in production kernel libraries. All have been reported to developers.
 
 | Library | Issue / PR | Bug Type | Bug Description |
 |---|---|---|---|
@@ -23,6 +23,7 @@ With TensorLean, we verified 149 open-source kernel instances, including 102 fro
 |  | [#3166](https://github.com/Dao-AILab/flash-attention/issues/3166) | Memory access error | Paged KV cache with `page_table.shape[1] * page_size >= 2**31` crashes with an illegal memory access (SM90): the forward kernel's key count overflows 32 bits |
 |  | [#3195](https://github.com/Dao-AILab/flash-attention/issues/3195) / [#3196](https://github.com/Dao-AILab/flash-attention/pull/3196) | Data race | `compute_block_sparsity`: data race on `reduction_buffer` can drop blocks with unmasked keys |
 |  | [#3197](https://github.com/Dao-AILab/flash-attention/issues/3197) | Undefined behavior | SM100 backward and MLA forward initialize mbarriers from every lane of a warp (`mbarrier_init` without `elect_one`) |
+|  | [#3208](https://github.com/Dao-AILab/flash-attention/pull/3208) | Data race | Latent data race in the sparse MLA backward's `dKGemmKernel` (SM100): missing `tcgen05.wait::ld` before the accumulator is released to the MMA warp |
 | [FlashAttention‑3](https://github.com/Dao-AILab/flash-attention) | [#3014](https://github.com/Dao-AILab/flash-attention/issues/3014) / [#3015](https://github.com/Dao-AILab/flash-attention/pull/3015) | Memory access error | Silent data corruption of KV cache in `flash_attn_with_kvcache` with non-interleaved rotary (head dim not 64/96/128/192/256) |
 |  | [#3104](https://github.com/Dao-AILab/flash-attention/issues/3104) / [#3105](https://github.com/Dao-AILab/flash-attention/pull/3105) | Uninitialized memory, Memory access error, Data race | Cross-CTA data race and incorrect output and `softmax_lse` in split-KV `flash_attn_varlen_func` with `seqused_q` but no `cu_seqlens_q` |
 |  | [#3136](https://github.com/Dao-AILab/flash-attention/issues/3136) / [#3137](https://github.com/Dao-AILab/flash-attention/pull/3137) | Uninitialized memory | `flash_attn_with_kvcache` does not append the new keys that no query attends to |
