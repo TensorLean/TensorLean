@@ -15,7 +15,7 @@ We will soon release our paper and open-source TensorLean, including its PTX sem
 
 ## Correctness Bugs Found by TensorLean
 
-With TensorLean, we verified 149 open-source kernel instances, including 102 from FlashAttention, proving 83 of them correct and finding bugs in the other 66. Here, we share 43 correctness bugs of various types that TensorLean's verification found in production kernel libraries. All have been reported to developers.
+With TensorLean, we verified 149 open-source kernel instances, including 102 from FlashAttention, proving 83 of them correct and finding bugs in the other 66. Here, we share 44 correctness bugs of various types that TensorLean's verification found in production kernel libraries. All have been reported to developers.
 
 | Library | Issue / PR | Bug Type | Bug Description |
 |---|---|---|---|
@@ -44,6 +44,7 @@ With TensorLean, we verified 149 open-source kernel instances, including 102 fro
 |  | [#3190](https://github.com/Dao-AILab/flash-attention/issues/3190) | Memory access error | The split-KV combine kernel stores `softmax_lse` past its end when `b * h * seqlen_q` is not a multiple of its block size |
 |  | [#3191](https://github.com/Dao-AILab/flash-attention/issues/3191) | Numerical bug | `out` is NaN and `softmax_lse` is `inf` in rows with a masked key when `softmax_scale` is not positive or is below ~8.15e-39 |
 |  | [#3230](https://github.com/Dao-AILab/flash-attention/issues/3230) | Numerical bug, Uninitialized memory, Undefined behavior | `flash_attn_varlen_func` backward: `int` overflow in `(seqlen_k + kBlockN - 1) / kBlockN` leaves `dK`/`dV` unwritten and zeroes `dQ` with `deterministic=True` |
+|  | [#3231](https://github.com/Dao-AILab/flash-attention/issues/3231) | Numerical bug, Memory access error | 32-bit step `-int(kBlockM * *_row_stride)` overflows in the backward kernel when stepping query, `dO`, `O`, and `dQ` blocks |
 | [DeepGEMM](https://github.com/deepseek-ai/DeepGEMM) | [#476](https://github.com/deepseek-ai/DeepGEMM/issues/476) / [#477](https://github.com/deepseek-ai/DeepGEMM/pull/477) | Incorrect algorithm implementation | SM90 `fp8_einsum("bhr,hdr->bhd", a, b, d, c)` silently drops `c` and returns `a @ b.T` |
 |  | [#490](https://github.com/deepseek-ai/DeepGEMM/issues/490) | Numerical bug, Memory access error | 32-bit scale indices wrap in `pack_fp32_into_ue8m0` (reads) and `transpose_fp32` (writes) |
 |  | [#514](https://github.com/deepseek-ai/DeepGEMM/issues/514) / [#515](https://github.com/deepseek-ai/DeepGEMM/pull/515) | Memory access error, Data race | SM90 masked grouped GEMMs write a group's partial last M block into the next group's rows, racing with that group's stores (wrong `d` when `M` is not a multiple of `BLOCK_M`) |
