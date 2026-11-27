@@ -15,7 +15,7 @@ We will soon release our paper and open-source TensorLean, including its PTX sem
 
 ## Correctness Bugs Found by TensorLean
 
-With TensorLean, we verified 149 open-source kernel instances, including 102 from FlashAttention, proving 83 of them correct and finding bugs in the other 66. Here, we share 44 correctness bugs of various types that TensorLean's verification found in production kernel libraries. All have been reported to developers.
+With TensorLean, we verified 149 open-source kernel instances, including 102 from FlashAttention, proving 83 of them correct and finding bugs in the other 66. Here, we share 45 correctness bugs of various types that TensorLean's verification found in production kernel libraries. All have been reported to developers.
 
 | Library | Issue / PR | Bug Type | Bug Description |
 |---|---|---|---|
@@ -34,6 +34,7 @@ With TensorLean, we verified 149 open-source kernel instances, including 102 fro
 |  | [#3192](https://github.com/Dao-AILab/flash-attention/issues/3192) | Undefined behavior | Combine: `int` overflow in `ceil_div(seqlen * num_heads, kBlockM)` leaves `out` and `softmax_lse` unwritten, with no error |
 |  | [#3193](https://github.com/Dao-AILab/flash-attention/issues/3193) | Deadlock | Latent deadlock in the Hopper forward kernel: missing `__syncwarp()` after the producer warp's `barrier_O.wait` |
 |  | [#3194](https://github.com/Dao-AILab/flash-attention/issues/3194) | Uninitialized memory, Undefined behavior | `flash_attn_combine` silently returns without writing `out` or `softmax_lse` when its kernel fails to launch (e.g. batch size > 65535) |
+|  | [#3236](https://github.com/Dao-AILab/flash-attention/issues/3236) / [#3237](https://github.com/Dao-AILab/flash-attention/pull/3237) | Incorrect algorithm implementation, Uninitialized memory | Backward ignores `seqused_q` and `seqused_k` when `cu_seqlens_q` and `cu_seqlens_k` are not given: wrong `dQ`, NaN `dK` and `dV` |
 | [FlashAttention‑2](https://github.com/Dao-AILab/flash-attention) | [#3001](https://github.com/Dao-AILab/flash-attention/pull/3001) | Incorrect algorithm implementation, Numerical bug | Incorrect `softmax_lse` of causal ALiBi attention in `flash_fwd_kernel` and `flash_fwd_splitkv_kernel` |
 |  | [#3004](https://github.com/Dao-AILab/flash-attention/pull/3004) | Uninitialized memory, Memory access error | Memory corruption and incorrect `softmax_lse` when `flash_fwd_splitkv_kernel` early returns |
 |  | [#3039](https://github.com/Dao-AILab/flash-attention/issues/3039) / [#3040](https://github.com/Dao-AILab/flash-attention/pull/3040) | Memory access error | Incorrect `softmax_lse` from `flash_attn_varlen_func` in GQA decoding with paged KV |
